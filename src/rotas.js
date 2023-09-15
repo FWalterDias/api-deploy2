@@ -8,6 +8,7 @@ const {
 } = require('./controladores/carros');
 
 const {
+	listarUsuarios,
 	cadastrarUsuario,
 	login,
 	obterPerfil,
@@ -17,12 +18,9 @@ const { usuarioAutenticado } = require('./intermediarios/auenticacao');
 
 const rotas = express();
 
+rotas.get('/', listarUsuarios);
 rotas.post('/usuario', cadastrarUsuario);
 rotas.post('/login', login);
-
-rotas.get('/', (req, res)=>{
-	return res.json('API OK! - HEROKU CLI'); 
-});
 
 rotas.use(usuarioAutenticado);
 

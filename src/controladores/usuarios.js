@@ -3,6 +3,21 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const senhaJwt = require('../senhaJwt');
 
+const listarUsuarios = async (req, res) => {
+	try {
+		const { rows, rowCount } = pool.query('select * from usuarios');
+
+		const usuarios = {
+			Total: rowCount,
+			Usuarios: rows
+		}
+
+		return res.status(200).json(usuarios);
+	} catch (error) {
+		return res.status(500).json({ mensagem: "Erro interno!" });
+	}
+}
+
 const cadastrarUsuario = async (req, res) => {
 	const { nome, email, senha } = req.body;
 
@@ -47,6 +62,7 @@ const obterPerfil = async (req, res) => {
 }
 
 module.exports = {
+	listarUsuarios,
 	cadastrarUsuario,
 	login,
 	obterPerfil,
