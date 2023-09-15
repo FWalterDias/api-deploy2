@@ -1,18 +1,18 @@
-const pool = require('../conexao');
+const knex = require('../conexao');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const senhaJwt = require('../senhaJwt');
 
 const listarUsuarios = async (req, res) => {
 	try {
-		const { rows, rowCount } = pool.query('select * from usuarios');
+		const usuarios = await knex('usuarios').first();
 
-		const usuarios = {
-			Total: rowCount,
-			Usuarios: rows
+		const daodsUsuarios = {
+			Total: usuarios.rowCount,
+			usuarios
 		}
 
-		return res.status(200).json(usuarios);
+		return res.status(200).json(daodsUsuarios);
 	} catch (error) {
 		return res.status(500).json({ mensagem: "Erro interno!" });
 	}
