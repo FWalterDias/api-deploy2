@@ -5,12 +5,12 @@ const senhaJwt = require('../senhaJwt');
 
 const listarUsuarios = async (req, res) => {
 	try {
-		const usuarios = await knex('usuarios').first();
+		const usuarios = await knex('usuarios');
 
 		return res.status(200).json(usuarios);
 	} catch (error) {
 		console.log(error);
-		return res.status(500).json({ mensagem: "Erro interno!" });
+		return res.status(500).json({ mensagem: "Erro interno do servidor!" });
 	}
 }
 
