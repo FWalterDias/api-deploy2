@@ -20,7 +20,7 @@ const rotas = express();
 rotas.post('/usuario', cadastrarUsuario);
 rotas.post('/login', login);
 
-rotas.get('/test', (req, res)=>{
+rotas.get('/', (req, res)=>{
 	return res.json('API OK! - HEROKU CLI'); 
 });
 
