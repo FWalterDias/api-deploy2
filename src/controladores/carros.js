@@ -1,30 +1,25 @@
-const pool = require('../conexao');
+const knex = require('../conexao');
 
 
 const listarCarros = async (req, res) => {
 	try {
-		const { rows } = await pool.query('select * from carros');
+		const carros = await knex('carros');
 
-		return res.json(rows)
+		return res.status(200).json(carros);
 	} catch (error) {
 		return res.status(500).json('Erro interno do servidor')
 	}
 }
 
 const detalharCarro = async (req, res) => {
-	const { id } = req.params
+	const { id } = req.params;
 
 	try {
-		const { rows, rowCount } = await pool.query(
-			'select * from carros where id = $1',
-			[id]
-		)
+		const carro = await knex('carros').where({ id }).first();
 
-		if (rowCount < 1) {
-			return res.status(404).json({ mensagem: 'Carro não encontrado' })
-		}
+		if (!carro) return res.status(400).json({ mensagem: "Carro não encontrado" });
 
-		return res.json(rows[0])
+		return res.json(carro);
 	} catch (error) {
 		return res.status(500).json('Erro interno do servidor')
 	}
@@ -33,13 +28,14 @@ const detalharCarro = async (req, res) => {
 const cadastrarCarro = async (req, res) => {
 	const { modelo, marca, ano, cor, descricao } = req.body
 
-	try {
-		const { rows } = await pool.query(
-			'insert into carros (modelo, marca, ano, cor, descricao) values ($1, $2, $3, $4, $5) returning *',
-			[modelo, marca, ano, cor, descricao]
-		)
+	if (!modelo || !marca || !ano) return res.status(400).json({ mensagem: "preencha todos o campos obrigatórios" });
 
-		return res.status(201).json(rows[0])
+	try {
+		const novoCarro = await knex('carros')
+			.insert({ modelo, marca, ano, cor, descricao })
+			.returning('*');
+
+		return res.status(201).json(novoCarro);
 	} catch (error) {
 		return res.status(500).json('Erro interno do servidor')
 	}
@@ -50,19 +46,11 @@ const atualizarCarro = async (req, res) => {
 	const { modelo, marca, ano, cor, descricao } = req.body
 
 	try {
-		const { rows, rowCount } = await pool.query(
-			'select * from carros where id = $1',
-			[id]
-		)
+		const carro = await knex('carros').where({ id }).first();
 
-		if (rowCount < 1) {
-			return res.status(404).json({ mensagem: 'Carro não encontrado' })
-		}
+		if (!carro) return res.status(400).json({ mensagem: "Carro não encontrado" })
 
-		await pool.query(
-			'update carros set modelo = $1, marca = $2, ano = $3, cor = $4, descricao = $5 where id = $6',
-			[modelo, marca, ano, cor, descricao, id]
-		)
+		await knex('carros').update({ modelo, marca, ano, cor, descricao }).where({ id });
 
 		return res.status(204).send()
 	} catch (error) {
@@ -74,16 +62,11 @@ const excluirCarro = async (req, res) => {
 	const { id } = req.params
 
 	try {
-		const { rows, rowCount } = await pool.query(
-			'select * from carros where id = $1',
-			[id]
-		)
+		const carro = await knex('carros').where({ id }).first();
 
-		if (rowCount < 1) {
-			return res.status(404).json({ mensagem: 'Carro não encontrado' })
-		}
+		if (!carro) return res.status(400).json({ mensagem: "Carro não encontrado" });
 
-		await pool.query('delete from carros where id = $1', [id])
+		await knex('carros').delete().where({ id });
 
 		return res.status(204).send()
 	} catch (error) {
